@@ -8,6 +8,7 @@ from pwd import getpwuid
 class FileRetention:
     candidates = []
     directory = ""
+    destination_directory = ""
 
     def __init__(self):
         pass
@@ -54,7 +55,6 @@ class FileRetention:
                 condition_validations.append(self.find_size(full_path) > size_greater_than)
             if owned_by != "":
                 condition_validations.append(self.find_owner(full_path) == owned_by)
-
         else:
             return False
 
@@ -102,12 +102,23 @@ class FileRetention:
             elif os.path.isdir(full_path):
                 self.remove_dir(full_path)
 
+    def move_operation(self):
+        if self.destination_directory == "":
+            raise ValueError("Please specify a valid destination directory for move operation")
+        for entity in self.candidates:
+            full_path = self.directory + "/" + entity
+            full_destination_path = self.destination_directory + "/" + entity
+            os.rename(full_path, full_destination_path)
+
+
     def perform_operation(self, operation):
-        if operation is "list":
+        if operation == "list":
             self.list_operation()
             return
-        if operation is "remove":
+        if operation == "remove" or operation == "delete":
             self.remove_operation()
+        if operation == "move":
+            self.move_operation()
 
     def find_all_files_containing(self,
                                   directory,
@@ -120,10 +131,14 @@ class FileRetention:
                                   last_modified_after="",
                                   date_format="%m/%d/%y %H:%M",
                                   owned_by="",  # conditions end
-                                  operation="list"):
+                                  operation="list",
+                                  destination_dir=""):
         if only_directories and only_files:
             raise ValueError("Only Directories and Only Files both cannot be True")
         self.directory = directory
+        if destination_dir != "":
+            self.destination_directory = destination_dir
+
         for file_name in os.listdir(directory):
             validation = self.validate_conditions(file_name,
                                                   containing_regex,
