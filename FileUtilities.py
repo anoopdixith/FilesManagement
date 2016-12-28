@@ -2,6 +2,7 @@ __author__ = 'adixith'
 import os
 import re
 import datetime
+import shutil
 from pwd import getpwuid
 
 
@@ -102,14 +103,16 @@ class FileRetention:
             elif os.path.isdir(full_path):
                 self.remove_dir(full_path)
 
-    def move_operation(self):
+    def move_operation(self, copy=False):
         if self.destination_directory == "":
             raise ValueError("Please specify a valid destination directory for move operation")
         for entity in self.candidates:
             full_path = self.directory + "/" + entity
             full_destination_path = self.destination_directory + "/" + entity
-            os.rename(full_path, full_destination_path)
-
+            if not copy:
+                shutil.move(full_path, full_destination_path)
+            else:
+                shutil.copytree(full_path, full_destination_path)
 
     def perform_operation(self, operation):
         if operation == "list":
@@ -119,6 +122,8 @@ class FileRetention:
             self.remove_operation()
         if operation == "move":
             self.move_operation()
+        if operation == "copy":
+            self.move_operation(copy=True)
 
     def find_all_files_containing(self,
                                   directory,
