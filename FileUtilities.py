@@ -105,14 +105,14 @@ class FileRetention:
 
     def move_operation(self, copy=False):
         if self.destination_directory == "":
-            raise ValueError("Please specify a valid destination directory for move operation")
+            raise ValueError("Please specify a valid destination directory for move/copy operation")
         for entity in self.candidates:
             full_path = self.directory + "/" + entity
             full_destination_path = self.destination_directory + "/" + entity
-            if not copy:
-                shutil.move(full_path, full_destination_path)
-            else:
+            if copy:
                 shutil.copytree(full_path, full_destination_path)
+            else:
+                shutil.move(full_path, full_destination_path)
 
     def perform_operation(self, operation):
         if operation == "list":
