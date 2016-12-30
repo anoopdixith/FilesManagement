@@ -2,7 +2,7 @@ import FileUtilities
 
 if __name__ == "__main__":
     file_utility = FileUtilities.FileRetention()
-    file_utility.find_all_files_containing("/home/adixith/FileRetention",
+    file_utility.process_all_files_containing("/home/adixith/FileRetention",
                                            "file",
                                            content_contains="ell",
                                            condition_logic="and",

@@ -139,7 +139,7 @@ class FileRetention:
         if operation == "copy":
             self.move_operation(copy=True)
 
-    def find_all_files_containing(self,
+    def process_all_files_containing(self,
                                   directory,
                                   containing_regex,  # don't want to give a default
                                   content_contains="",
