@@ -3,6 +3,7 @@ import os
 import re
 import datetime
 import shutil
+import mmap
 from pwd import getpwuid
 
 
@@ -31,6 +32,7 @@ class FileRetention:
 
     def validate_conditions(self, file_name,
                             containing_regex,
+                            content_contains,
                             condition_logic,
                             only_files,
                             only_directories,
@@ -42,6 +44,8 @@ class FileRetention:
         condition_validations = []
         if re.search(containing_regex, file_name):
             full_path = self.directory + "/" + file_name
+            if content_contains != "":
+                condition_validations.append(self.does_file_contain(full_path, content_contains))
             if only_files:
                 condition_validations.append(os.path.isfile(full_path))
             if only_directories:
@@ -60,6 +64,16 @@ class FileRetention:
             return False
 
         return self.process_condition_results(condition_validations, condition_logic)
+
+    def does_file_contain(self, full_path, content_contains):
+        if not os.path.isfile(full_path) or self.find_size(full_path) == 0:
+            return False
+        open_file = open(full_path)
+        # mmap objects so large files could be handled
+        memory_mapped_object = mmap.mmap(open_file.fileno(), 0, access=mmap.ACCESS_READ)
+        if re.search(content_contains, memory_mapped_object):
+            return True
+        return False
 
     def find_owner(self, full_path):
         return getpwuid(os.stat(full_path).st_uid).pw_name
@@ -128,6 +142,7 @@ class FileRetention:
     def find_all_files_containing(self,
                                   directory,
                                   containing_regex,  # don't want to give a default
+                                  content_contains="",
                                   condition_logic="or",
                                   only_files=False,  # conditions start
                                   only_directories=False,
@@ -147,6 +162,7 @@ class FileRetention:
         for file_name in os.listdir(directory):
             validation = self.validate_conditions(file_name,
                                                   containing_regex,
+                                                  content_contains,
                                                   condition_logic,
                                                   only_files,
                                                   only_directories,

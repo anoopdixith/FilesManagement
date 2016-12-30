@@ -3,10 +3,9 @@ import FileUtilities
 if __name__ == "__main__":
     file_utility = FileUtilities.FileRetention()
     file_utility.find_all_files_containing("/home/adixith/FileRetention",
-                                           "inn",
-                                           condition_logic="or",
-                                           size_greater_than=5000,
+                                           "file",
+                                           content_contains="ell",
+                                           condition_logic="and",
                                            owned_by="adixith",
-                                           last_modified_after="10/21/16 16:30",
-                                           operation="copy",
-                                           destination_dir="/home/adixith/FileRetention/dest")
+                                           last_modified_after="10/21/16 16:30"
+                                           )
